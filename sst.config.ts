@@ -25,8 +25,7 @@ export default $config({
     };
   },
   // SST Console Autodeploy: a push to `main` deploys the single `production`
-  // stage; every other branch, PR and tag is skipped. Instance forks receive
-  // root changes through .github/workflows/sync-instances.yml.
+  // stage; every other branch, PR and tag is skipped.
   console: {
     autodeploy: {
       target(event) {

@@ -30,7 +30,7 @@ or a Lambda Function URL behind CloudFront.
   app-level auth so this is harmless. Revisit only if it becomes an abuse
   vector.
 - Lambda sync invoke caps requests at 6 MB (~4.5 MB of raw attachment bytes);
-  larger attachments must use `attachments[].path` (README + API docs note).
+  larger attachments must use `attachments[].path` (documented in docs/sending-email.md).
 - A future SST upgrade that starts validating the 60 s JSDoc cap would fail
   the deploy loudly — the fallback is a `transform` on the distribution, not
   a silent downgrade.

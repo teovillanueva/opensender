@@ -1,0 +1,65 @@
+name: sync-upstream
+
+# Pulls upstream into this instance: merges the latest upstream `main` commit
+# whose CI passed and pushes it to `main`, which deploys the instance (SST
+# Console Autodeploy). Upstream is public, so no token is needed to read it.
+#
+# GITHUB_TOKEN cannot push changes to .github/workflows, and conflicts need a
+# human: in both cases the run fails with the commands to finish by hand.
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  UPSTREAM: teovillanueva/opensender
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Merge upstream main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          sha=$(gh api "repos/${UPSTREAM}/actions/workflows/ci.yml/runs?branch=main&event=push&status=success&per_page=1" \
+            -q '.workflow_runs[0].head_sha // empty')
+          if [ -z "$sha" ]; then
+            echo "No upstream commit has passed CI yet"
+            exit 0
+          fi
+
+          git fetch -q "https://github.com/${UPSTREAM}.git" "$sha"
+          if git merge-base --is-ancestor "$sha" HEAD; then
+            echo "Already up to date with upstream ${sha::7}"
+            exit 0
+          fi
+
+          manual="git fetch https://github.com/${UPSTREAM}.git ${sha} && git merge FETCH_HEAD && git push origin main"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git merge --no-edit -m "Merge upstream main (${sha::7})" "$sha"; then
+            echo "::error::Upstream ${sha::7} conflicts with this instance. Resolve locally: ${manual}"
+            exit 1
+          fi
+          if git diff --quiet HEAD^1 HEAD -- .github/workflows; then
+            git push origin HEAD:main
+            echo "Merged upstream ${sha::7}"
+          else
+            echo "::error::Upstream ${sha::7} changes .github/workflows, which GITHUB_TOKEN cannot push. Merge locally: ${manual}"
+            exit 1
+          fi

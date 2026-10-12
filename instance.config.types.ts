@@ -1,6 +1,6 @@
 /**
  * Shape of `instance.config.ts` (SPEC §20). Kept apart from the values so
- * instance forks only ever edit `instance.config.ts` and upstream changes to
+ * instance repos only ever edit `instance.config.ts` and upstream changes to
  * the schema merge cleanly.
  */
 

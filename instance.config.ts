@@ -1,6 +1,6 @@
 /**
- * Per-instance configuration (SPEC §20). A new opensender instance = fork the
- * repo, edit this file, point AWS credentials at the target account, deploy.
+ * Per-instance configuration (SPEC §20). A new opensender instance = its own
+ * repo created from this one, with this file edited (docs/deploying.md).
  * The schema lives in `instance.config.types.ts`; keep this file values-only.
  * Secrets NEVER live here — they go through `sst secret`.
  */

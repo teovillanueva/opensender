@@ -11,7 +11,7 @@ import { sentryEsbuildPlugin } from "@sentry/esbuild-plugin";
  * SENTRY_PROJECT (SST loads these from .env). Without them this exports an
  * empty plugin list — bundling is unchanged. The auth token is a Sentry
  * project token with `project:releases`/`project:write` scope; it is NOT the
- * DSN. See SETUP.md.
+ * DSN. See docs/deploying.md.
  */
 const { SENTRY_AUTH_TOKEN, SENTRY_ORG, SENTRY_PROJECT } = process.env;
 

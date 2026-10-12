@@ -49,7 +49,7 @@ export function createCostControls(deps: {
   // allows exactly one DIMENSIONAL/SERVICE spend monitor per account, so it
   // is not managed per-stage here (a second `CreateAnomalyMonitor` fails with
   // "Limit exceeded"). The operator confirms the account monitor is on with a
-  // daily email subscription once — SETUP.md / runbook.
+  // daily email subscription once — docs/deploying.md.
 
   // Weekly cost summary cron (SPEC §15): queries Cost Explorer and mails the
   // per-service breakdown through the platform itself (dogfooding), with an

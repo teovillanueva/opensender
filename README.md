@@ -1,141 +1,93 @@
+![opensender — send emails from your AWS](docs/assets/banner.jpg)
+
+<p align="center">
+  <a href="docs/deploying.md">Deploy an instance</a> ·
+  <a href="docs/sending-email.md">Send email</a> ·
+  <a href="docs/updating-instances.md">Stay up to date</a> ·
+  <a href="docs/operations.md">Operations</a> ·
+  <a href="docs/development.md">Development</a>
+</p>
+
 # opensender
 
-A redeployable, self-hosted email platform that is a 100% API-compatible clone
-of [Resend](https://resend.com): any application using the official Resend SDK
-works against it changing nothing but the `baseURL`. Runs entirely on AWS
-(SES v2 tenants, Lambda, DynamoDB, CloudFront) via [SST](https://sst.dev).
+A self-hosted email platform that speaks the [Resend](https://resend.com) API.
+Deploy it into your own AWS account and point any official Resend SDK at it:
+the only thing that changes in your app is the base URL.
 
-Each instance serves the dashboard on its domain (e.g. `mailing.example.com`)
-and the API at `api.<domain>`.
+- **Drop-in API.** Emails, batch, scheduling, idempotency, domains, API keys,
+  contacts, segments, broadcasts, webhooks and inbound, matching Resend's wire
+  format.
+- **Runs on your AWS.** SES v2, Lambda, DynamoDB and CloudFront, deployed with
+  [SST](https://sst.dev). No third-party email vendor, and your data stays in
+  your account.
+- **Multi-tenant.** Each team gets its own SES tenant, plan quotas, and
+  reputation guardrails that freeze a team before it can hurt the account.
+- **Dashboard included.** Domains, keys, emails, broadcasts, webhooks and team
+  members, plus OAuth for connected apps and an MCP server for agents.
+- **Cheap to run.** Serverless pay-per-use, native CloudWatch observability,
+  budgets and a weekly cost report.
 
-## Deploying an instance
+## Quickstart
 
-1. Fork the repo and edit `instance.config.ts` (domain, region, plans, alert
-   email). Keep the fork's changes to that file so upstream merges stay clean;
-   its schema lives in `instance.config.types.ts`.
-2. DNS (`dnsMode: "route53"`): the instance domain needs a Route 53 hosted
-   zone in the target account. If the parent domain lives elsewhere (Vercel,
-   Cloudflare, …), create a zone for the instance subdomain only
-   (e.g. `mailing.example.com`) and add its four `NS` records at the parent's
-   DNS provider.
-3. Point AWS credentials at the target account (a dedicated `AWS_PROFILE` per
-   instance avoids deploying to the wrong one).
-4. Set the secrets listed in `SETUP.md` (`sst secret set <Name> <value>
-   --stage production`).
-5. `pnpm install && pnpm exec sst deploy --stage production`.
+```bash
+git clone https://github.com/teovillanueva/opensender my-mailing
+cd my-mailing
+# edit instance.config.ts: domain, region, alert email, plans
+pnpm install
+pnpm exec sst deploy --stage production
+```
 
-There is exactly one stage, `production`. Local development is
-`sst dev --stage production`, which shares the deployed resources; while it
-runs, SST Live mode redirects the stage's Lambda invocations to your machine —
-fine pre-launch. Create a separate `dev` stage only when real customer traffic
-exists.
+The full walkthrough, including DNS, secrets and the first admin user, is in
+[Deploying an instance](docs/deploying.md).
 
-## Request limits
+## Send your first email
 
-The API sits behind a Lambda Function URL (sync invoke), which caps requests
-at **6 MB** — inline base64 attachments top out at ~4.5 MB of raw bytes per
-request. Larger attachments must use `attachments[].path` (server-side
-download; SES's overall message cap is 40 MB post-base64).
+Use the official Resend SDK and set the base URL to your instance's API:
 
-## Repo layout
+```ts
+import { Resend } from "resend";
 
-pnpm workspaces, one package per concern (SPEC §2):
+const resend = new Resend("re_123456789", {
+  baseUrl: "https://api.mailing.example.com",
+});
 
-- `packages/contract` — the normative API surface: vendored `resend.yaml`
-  (pinned) + `extensions.yaml` → bundled `openapi.json`, generated TS types,
-  Ajv validators, golden fixtures.
-- `packages/core` — domain logic, ports and adapters. Never imports AWS SDKs
-  outside `core/adapters/`.
-- `packages/api` — the Hono app, typed against the contract.
-- `packages/functions` — Lambda entry points (one composition root each).
-- `packages/web` — the dashboard (Vite + React).
-- `packages/scripts` — seeds, acceptance suite, fixture capture.
+const { data, error } = await resend.emails.send({
+  from: "hello@example.com",
+  to: "delivered@example.com",
+  subject: "Hello World",
+  html: "<strong>it works!</strong>",
+});
+```
 
-`pnpm check` runs everything CI runs: typecheck, Biome, dependency-cruiser,
-knip, offline tests, and the contract codegen gate.
+Or with plain HTTP:
 
-Architecture decisions live in `docs/adr/`.
+```bash
+curl -X POST https://api.mailing.example.com/emails \
+  -H "Authorization: Bearer re_123456789" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "from": "hello@example.com",
+    "to": "delivered@example.com",
+    "subject": "Hello World",
+    "html": "<strong>it works!</strong>"
+  }'
+```
 
-## Runbook (operations)
+More in [Sending email](docs/sending-email.md).
 
-Everything runs on native CloudWatch + free tiers; there is no paid SaaS. The
-operator alert channel is the `OpsAlerts` SNS topic → the instance alert email
-(all CloudWatch alarms, tenant freeze/restore, reputation auto-freeze, the
-weekly cost report fallback). One-time setup is in `SETUP.md`.
+## Documentation
 
-### Observability
+| Guide | What's in it |
+| --- | --- |
+| [Deploying an instance](docs/deploying.md) | Prerequisites, configuration, DNS, secrets, first admin, one-time AWS setup |
+| [Sending email](docs/sending-email.md) | SDKs, base URL, API keys, request limits |
+| [Keeping an instance up to date](docs/updating-instances.md) | Private instance repos, hourly upstream sync, SST Console Autodeploy |
+| [Operations](docs/operations.md) | Observability, SES limits, secret rotation, DLQs, paused tenants, costs |
+| [Development](docs/development.md) | Repo layout, checks, local dev, acceptance suite |
+| [Glossary](docs/glossary.md) | Instance, Team, Tenant, Plan and the rest of the domain language |
+| [Architecture decisions](docs/adr) | ADRs |
+| [Specification](SPEC.md) | The full product and engineering spec |
 
-- **Dashboard:** CloudWatch dashboard `opensender-<stage>` — SES volume &
-  reputation, DLQ depth, API health, the custom EMF metrics (`sends`,
-  `deliveries`, `bounces`, `complaints`, `webhook_deliveries`,
-  `webhook_failures`, `inbound_received`, `domains_verified`), and account-wide
-  estimated charges.
-- **Logs:** Powertools structured JSON, 30-day retention on every Lambda log
-  group. INFO is sampled ~10%; WARN/ERROR always emit. Correlate by
-  `requestId`/`emailId`/`teamId`.
-- **Errors:** Sentry (all Lambdas + the frontend). Sourcemaps upload at build
-  time once `SENTRY_AUTH_TOKEN`/`SENTRY_ORG`/`SENTRY_PROJECT` are set (SETUP).
-- **Uptime:** Better Stack monitor on `GET /health` (a light DynamoDB read,
-  never SES) + a public status page. Provision with
-  `pnpm --filter @opensender/scripts exec tsx src/setup-betterstack.ts`
-  (idempotent; reads `BETTERSTACK_API_TOKEN` from `.env`).
+## License
 
-### Account limits and raises
-
-SES starts in sandbox with a low quota and rate. Request production access and
-higher send quota/rate in the SES console (Account dashboard → Request
-production access / increase). Reflect the account send rate in
-`instance.config.ts` `sesMaxSendRatePerSecond` so the broadcast fan-out paces
-under it. The API Function URL caps a request at 6 MB (see Request limits).
-
-### Secret rotation
-
-Secrets are SST secrets (never in git). Rotate with `sst secret set <Name>
-<value> --stage production` then `sst deploy` (Lambdas pick up the new value on
-the next deploy). Rotate `BetterAuthSecret`, `SentryDsn`/`SentryDsnWeb`,
-`UnsubscribeSecret` the same way. The one-time admin bootstrap token
-(`/opensender/<stage>/bootstrap-token` in SSM) is re-emitted on deploy and stops
-working as soon as any user exists.
-
-### DLQ redrive
-
-Three queues have DLQs (`EmailEvents`, `WebhookDeliveries`, `BroadcastFanout`).
-A DLQ-depth alarm fires when any has messages. Inspect the DLQ in the SQS
-console, fix the cause, then **Start DLQ redrive** (SQS console → the DLQ →
-Start DLQ redrive → to source queue). Messages re-enter the source queue and the
-consumer reprocesses them (handlers are idempotent, so redelivery is safe).
-
-### SES paused tenant (guardrails)
-
-If SES pauses a tenant, the `TenantStatus` Lambda freezes the owning team
-(`Team.status = frozen`), sends return `403 restricted`, and the operator is
-alerted. The reputation auto-freeze does the same when a team's rolling bounce
-rate exceeds 5% or complaint rate exceeds 0.1% past the minimum sample. To
-restore: resolve the underlying issue, re-enable the tenant in SES (a
-`REINSTATED`/`ENABLED` event auto-restores the team), or set the team back to
-`active` manually. Manual re-enable is respected — the auto-freeze only acts on
-currently-active teams.
-
-### Weekly cost summary
-
-The `CostReport` cron (weekly) queries Cost Explorer filtered to
-`app=opensender` and mails the per-service breakdown through the platform
-itself, falling back to `OpsAlerts` if no verified domain exists. Run it now
-with `aws lambda invoke --function-name <CostReport fn> /dev/stdout`. Requires
-Cost Explorer enabled and the `app` cost-allocation tag activated (SETUP).
-
-### Post-run credential hygiene (R09 §6)
-
-The bootstrap deploy uses a broad IAM key. After the instance is up and the
-admin user is bootstrapped, **rotate or deactivate that bootstrap IAM key** in
-IAM and switch day-to-day operations to a least-privilege deploy identity. Do
-not leave the bootstrap key active.
-
-### Acceptance suite
-
-`sst shell --stage production -- tsx packages/scripts/acceptance/index.ts`
-runs the full flow against production via the official Resend SDK (recipients
-restricted to the SES simulator). Set `ACCEPTANCE_CAPTURE_URL` to run the
-webhook receive + svix-verify step against a stable capture endpoint. Contract
-fuzzing (Schemathesis) is on-demand — see
-`packages/scripts/acceptance/schemathesis.md`.
+[MIT](LICENSE)

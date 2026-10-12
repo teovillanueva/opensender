@@ -14,7 +14,7 @@ export default $config({
       removal: input.stage === "production" ? ("retain" as const) : ("remove" as const),
       // Global cost-allocation tags on every AWS resource (SPEC §15). The
       // operator activates `app`/`stage` as cost-allocation tags once in
-      // Billing (they surface in Cost Explorer ~24h later) — SETUP.md.
+      // Billing (they surface in Cost Explorer ~24h later) — docs/deploying.md.
       providers: { aws: { defaultTags }, random: "4.16.6" },
     };
     const withRegion = import("./instance.config").then(({ instanceConfig }) => ({
@@ -53,7 +53,7 @@ export default $config({
     // Frontend Sentry DSN (public), injected into the SPA build (SPEC §15).
     const sentryDsnWeb = new sst.Secret("SentryDsnWeb");
     // HMAC key for signed one-click unsubscribe tokens (SPEC §11.2). Must be
-    // set before deploy: `sst secret set UnsubscribeSecret <random>` (SETUP.md).
+    // set before deploy: `sst secret set UnsubscribeSecret <random>` (docs/deploying.md).
     const unsubscribeSecret = new sst.Secret("UnsubscribeSecret");
 
     // 30-day log retention on every Lambda (SPEC §15) — covers the Cron and
@@ -118,7 +118,7 @@ export default $config({
     // Operator alerting channel (SPEC §15): the single SNS topic behind both
     // CloudWatch alarms and app-level guardrail alerts (tenant freeze / auto-
     // freeze). The email subscription requires a one-time confirmation click by
-    // the operator after the first deploy (SETUP.md); AWS cannot auto-confirm.
+    // the operator after the first deploy (docs/deploying.md); AWS cannot auto-confirm.
     const opsAlerts = new sst.aws.SnsTopic("OpsAlerts");
     new aws.sns.TopicSubscription("OpsAlertsEmail", {
       topic: opsAlerts.arn,
@@ -152,7 +152,7 @@ export default $config({
     };
 
     // Outbound attachments (and, at M6, inbound raw MIME) — 90-day expiry
-    // documented in the README (SPEC §3.2).
+    // documented in docs/sending-email.md (SPEC §3.2).
     const attachmentsBucket = new sst.aws.Bucket("AttachmentsBucket", {
       versioning: true,
     });

@@ -82,7 +82,7 @@ type FanoutMessage = StartMessage | PageMessage;
  * Broadcast fan-out consumer (SPEC §11). Two message kinds share the queue:
  * `start` expands a segment into `page` messages; `page` renders and sends one
  * batch of recipients through the ordinary EmailsService pipeline. At-least-once
- * delivery — a redelivered page can re-send its recipients (see README limits).
+ * delivery — a redelivered page can re-send its recipients (see docs/sending-email.md).
  */
 async function handlerImpl(event: SQSEvent): Promise<SQSBatchResponse> {
   const failures: Array<{ itemIdentifier: string }> = [];

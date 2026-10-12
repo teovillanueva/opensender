@@ -1,0 +1,44 @@
+{
+  "note": "Placeholder domain, never verified, deleted immediately. Captures records[] shape.",
+  "request": {
+    "method": "POST",
+    "path": "/domains",
+    "headers": {
+      "User-Agent": "opensender-fixture-capture/0.1",
+      "Authorization": "Bearer re_REDACTED",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "name": "opensender-fixture-mskodig0.com"
+    }
+  },
+  "response": {
+    "status": 403,
+    "headers": {
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a28065ab1b9a9294-EZE",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Sat, 08 Aug 2026 17:56:20 GMT",
+      "etag": "W/\"6a-W+0l5+3StcUmiMWBFKwIz555MB4\"",
+      "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
+      "ratelimit-limit": "10",
+      "ratelimit-policy": "10;w=1",
+      "ratelimit-remaining": "9",
+      "ratelimit-reset": "1",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "server": "cloudflare",
+      "strict-transport-security": "max-age=63072000; includeSubDomains",
+      "transfer-encoding": "chunked",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "statusCode": 403,
+      "message": "Your plan includes 1 domain. Upgrade to add more.",
+      "name": "validation_error"
+    }
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "note": "Pre-existing verified domain on this team (plan's single domain slot). Captured read-only to obtain records[] shape, since POST /domains is blocked by plan limit (see fixture 24).",
+  "request": {
+    "method": "GET",
+    "path": "/domains/db88ac50-bb8c-4970-96e0-9e869ba8a150",
+    "headers": {
+      "User-Agent": "opensender-fixture-capture/0.1",
+      "Authorization": "Bearer re_REDACTED"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a2806868683d487e-EZE",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Sat, 08 Aug 2026 17:58:13 GMT",
+      "etag": "W/\"35e-EN8qRNm00KxJEPNS0fO7rmq+Gao\"",
+      "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
+      "ratelimit-limit": "10",
+      "ratelimit-policy": "10;w=1",
+      "ratelimit-remaining": "9",
+      "ratelimit-reset": "1",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "server": "cloudflare",
+      "strict-transport-security": "max-age=63072000; includeSubDomains",
+      "transfer-encoding": "chunked",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "object": "domain",
+      "id": "db88ac50-bb8c-4970-96e0-9e869ba8a150",
+      "name": "example.net",
+      "created_at": "2025-12-05 15:28:00.278693+00",
+      "status": "verified",
+      "capabilities": {
+        "sending": "enabled",
+        "receiving": "disabled"
+      },
+      "records": [
+        {
+          "record": "DKIM",
+          "name": "resend._domainkey",
+          "value": "p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC1pY7yVXW/LnjATJwcVTGCir2KnUusLYonUIUJ0m/IYgkF1VZj7y2YLgouCunSfcGQBFjknBR+BPS/2eWM2/SEMoaD0vn153f1UNoWP0vHqjMte/YzFPhghZJBsRG+c5i+xzymZHOtFqDu1O/wYQlx/c9altnkGCH5zA6zEWmrZwIDAQAB",
+          "type": "TXT",
+          "status": "verified",
+          "ttl": "Auto"
+        },
+        {
+          "record": "SPF",
+          "name": "send",
+          "type": "MX",
+          "ttl": "60",
+          "status": "verified",
+          "value": "feedback-smtp.sa-east-1.amazonses.com",
+          "priority": 10
+        },
+        {
+          "record": "SPF",
+          "name": "send",
+          "value": "v=spf1 include:amazonses.com ~all",
+          "type": "TXT",
+          "ttl": "60",
+          "status": "verified"
+        }
+      ],
+      "region": "sa-east-1",
+      "open_tracking": false,
+      "click_tracking": false
+    }
+  }
+}

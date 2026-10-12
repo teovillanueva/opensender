@@ -1,0 +1,40 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": ["sentry-esbuild-plugins.mjs", "sst.config.ts"],
+      "project": ["*.ts", "infra/**/*.ts"]
+    },
+    "packages/contract": {
+      "entry": ["scripts/*.ts"],
+      "project": "**/*.ts"
+    },
+    "packages/core": {},
+    "packages/api": {},
+    "packages/web": {
+      "entry": ["src/main.tsx", "vite.config.ts", "src/routes/**/*.tsx"],
+      "project": "src/**/*.{ts,tsx}",
+      "ignore": ["src/routeTree.gen.ts", "src/components/ui/**", "src/hooks/**"],
+      "ignoreDependencies": [
+        "shadcn",
+        "cmdk",
+        "next-themes",
+        "tw-animate-css",
+        "@fontsource-variable/geist",
+        "tailwindcss",
+        "@tailwindcss/vite",
+        "@tanstack/react-query-devtools",
+        "@tanstack/react-router-devtools",
+        "zod"
+      ]
+    },
+    "packages/functions": {
+      "entry": ["src/*.ts"],
+      "project": "src/**/*.ts"
+    },
+    "packages/scripts": {
+      "entry": ["src/*.ts", "acceptance/*.ts"],
+      "project": "{src,acceptance}/**/*.ts"
+    }
+  }
+}

@@ -1,0 +1,308 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: "Geist Variable", sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  /* Resend design system: pure-black canvas, #292d30 hairline borders, no fills
+     on cards (elevation via borders), muted text #a1a4a5, white-on-black CTAs. */
+  --background: oklch(0 0 0);
+  --foreground: oklch(0.95 0 0);
+  --card: oklch(0.11 0.008 250);
+  --card-foreground: oklch(0.95 0 0);
+  --popover: oklch(0.12 0.008 250);
+  --popover-foreground: oklch(0.95 0 0);
+  --primary: oklch(1 0 0);
+  --primary-foreground: oklch(0.12 0 0);
+  --secondary: oklch(0.2 0.006 250);
+  --secondary-foreground: oklch(0.95 0 0);
+  --muted: oklch(0.16 0.006 250);
+  --muted-foreground: oklch(0.7 0.004 240);
+  --accent: oklch(0.2 0.006 250);
+  --accent-foreground: oklch(0.95 0 0);
+  --destructive: oklch(0.68 0.19 22);
+  --border: oklch(0.3 0.006 240);
+  --input: oklch(0.34 0.006 240);
+  --ring: oklch(0.5 0.01 240);
+  --chart-1: oklch(0.78 0.16 155);
+  --chart-2: oklch(0.68 0.15 250);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0 0 0);
+  --sidebar-foreground: oklch(0.95 0 0);
+  --sidebar-primary: oklch(1 0 0);
+  --sidebar-primary-foreground: oklch(0.12 0 0);
+  --sidebar-accent: oklch(0.18 0.006 250);
+  --sidebar-accent-foreground: oklch(0.95 0 0);
+  --sidebar-border: oklch(0.3 0.006 240);
+  --sidebar-ring: oklch(0.5 0.01 240);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  html {
+    @apply font-sans;
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Route view transitions. The router tags each navigation with a transition
+   type (see main.tsx): drilling into a detail slides forward, backing out
+   slides back, and moving laterally between sections cross-fades. Only the
+   routed content area (`main-content`, named in _app.tsx) animates — the
+   sidebar and header stay put, so navigation reads as content changing inside
+   a stable shell. Recipes from the view-transitions skill.
+--------------------------------------------------------------------------- */
+
+:root {
+  --vt-duration-exit: 120ms;
+  --vt-duration-enter: 200ms;
+  --vt-duration-move: 300ms;
+}
+
+@keyframes vt-fade {
+  from {
+    filter: blur(3px);
+    opacity: 0;
+  }
+  to {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+@keyframes vt-slide {
+  from {
+    translate: var(--vt-slide-offset);
+  }
+  to {
+    translate: 0;
+  }
+}
+
+/* The app shell never animates; only `main-content` participates. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+/* Lateral navigation (section to section): quick cross-fade. `both` keeps the
+   outgoing snapshot at opacity 0 after its fade so it never pops back over the
+   incoming page while that one is still animating in. */
+html:active-view-transition-type(nav-lateral)::view-transition-old(main-content) {
+  animation: var(--vt-duration-exit) ease-in both vt-fade reverse;
+}
+html:active-view-transition-type(nav-lateral)::view-transition-new(main-content) {
+  animation: var(--vt-duration-enter) ease-out var(--vt-duration-exit) both vt-fade;
+}
+
+/* Hierarchical navigation: list → detail. */
+html:active-view-transition-type(nav-forward)::view-transition-old(main-content) {
+  --vt-slide-offset: -48px;
+  animation:
+    var(--vt-duration-exit) ease-in both vt-fade reverse,
+    var(--vt-duration-move) ease-in-out both vt-slide reverse;
+}
+html:active-view-transition-type(nav-forward)::view-transition-new(main-content) {
+  --vt-slide-offset: 48px;
+  animation:
+    var(--vt-duration-enter) ease-out var(--vt-duration-exit) both vt-fade,
+    var(--vt-duration-move) ease-in-out both vt-slide;
+}
+
+/* Hierarchical navigation: detail → list. */
+html:active-view-transition-type(nav-back)::view-transition-old(main-content) {
+  --vt-slide-offset: 48px;
+  animation:
+    var(--vt-duration-exit) ease-in both vt-fade reverse,
+    var(--vt-duration-move) ease-in-out both vt-slide reverse;
+}
+html:active-view-transition-type(nav-back)::view-transition-new(main-content) {
+  --vt-slide-offset: -48px;
+  animation:
+    var(--vt-duration-enter) ease-out var(--vt-duration-exit) both vt-fade,
+    var(--vt-duration-move) ease-in-out both vt-slide;
+}
+
+/* Settings tab moves: only the tab panel animates. The panel gets its own
+   view-transition-name just for this transition type (the name is assigned
+   while the nav-settings type is active, i.e. at capture time), and the
+   surrounding main-content snapshot is pinned so the page header and tab bar
+   don't participate in the animation. */
+html:active-view-transition-type(nav-settings) [data-settings-content] {
+  view-transition-name: settings-content;
+}
+html:active-view-transition-type(nav-settings)::view-transition-old(main-content),
+html:active-view-transition-type(nav-settings)::view-transition-new(main-content) {
+  animation: none;
+}
+html:active-view-transition-type(nav-settings)::view-transition-old(settings-content) {
+  animation: var(--vt-duration-exit) ease-in both vt-fade reverse;
+}
+html:active-view-transition-type(nav-settings)::view-transition-new(settings-content) {
+  animation: var(--vt-duration-enter) ease-out var(--vt-duration-exit) both vt-fade;
+}
+
+/* Consent screen: choosing "Sending access" reveals the
+   Domain picker. The picker fades/slides in under its own name while the
+   actions below glide to their new position through the default group
+   animation; everything unnamed swaps instantly (root is pinned above). */
+.vt-consent-domain {
+  view-transition-name: consent-domain;
+}
+.vt-consent-actions {
+  view-transition-name: consent-actions;
+}
+::view-transition-old(consent-domain) {
+  animation: var(--vt-duration-exit) ease-in both vt-fade reverse;
+}
+::view-transition-new(consent-domain) {
+  --vt-slide-offset: 0 8px;
+  animation:
+    var(--vt-duration-enter) ease-out var(--vt-duration-exit) both vt-fade,
+    var(--vt-duration-move) ease-in-out both vt-slide;
+}
+::view-transition-group(consent-actions) {
+  animation-duration: var(--vt-duration-move);
+}
+
+/* Slide-to-allow affordance: the chevron nudges toward the drag direction. */
+@keyframes slide-hint {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateX(4px);
+    opacity: 1;
+  }
+}
+
+.slide-hint {
+  animation: slide-hint 2s ease-in-out infinite;
+}
+
+/* Skeleton → content swap: loaded content settles in with a soft fade+blur,
+   without a two-layer skeleton stack. */
+@keyframes content-reveal {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@utility content-reveal {
+  animation: content-reveal 240ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    /* biome-ignore lint/complexity/noImportantStyles: must beat the per-type animation shorthands above */
+    animation-duration: 0s !important;
+    /* biome-ignore lint/complexity/noImportantStyles: must beat the per-type animation shorthands above */
+    animation-delay: 0s !important;
+  }
+  .content-reveal {
+    animation: none;
+  }
+  .slide-hint {
+    animation: none;
+  }
+}

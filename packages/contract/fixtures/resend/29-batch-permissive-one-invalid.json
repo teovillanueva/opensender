@@ -1,0 +1,57 @@
+{
+  "note": "x-batch-validation: permissive. Expect partial success (real send #2) + errors[] with index.",
+  "request": {
+    "method": "POST",
+    "path": "/emails/batch",
+    "headers": {
+      "User-Agent": "opensender-fixture-capture/0.1",
+      "x-batch-validation": "permissive",
+      "Authorization": "Bearer re_REDACTED",
+      "Content-Type": "application/json"
+    },
+    "body": [
+      {
+        "from": "onboarding@resend.dev",
+        "to": ["ops@example.com"],
+        "subject": "opensender batch fixture (valid item)",
+        "html": "<p>Batch fixture. Ignore.</p>"
+      },
+      {
+        "to": ["ops@example.com"],
+        "subject": "invalid item: missing from",
+        "html": "<p>x</p>"
+      }
+    ]
+  },
+  "response": {
+    "status": 202,
+    "headers": {
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a28065be8d839294-EZE",
+      "connection": "keep-alive",
+      "content-length": "113",
+      "content-type": "application/json",
+      "date": "Sat, 08 Aug 2026 17:56:23 GMT",
+      "ratelimit-limit": "10",
+      "ratelimit-policy": "10;w=1",
+      "ratelimit-remaining": "9",
+      "ratelimit-reset": "1",
+      "server": "cloudflare",
+      "x-resend-daily-quota": "4",
+      "x-resend-monthly-quota": "10"
+    },
+    "body": {
+      "data": [
+        {
+          "id": "548b6c02-90dd-4d31-a993-4c6acf9dc807"
+        }
+      ],
+      "errors": [
+        {
+          "index": 1,
+          "message": "Missing `from` field."
+        }
+      ]
+    }
+  }
+}

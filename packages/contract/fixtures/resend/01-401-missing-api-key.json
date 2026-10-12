@@ -1,0 +1,33 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/domains",
+    "headers": {
+      "User-Agent": "opensender-fixture-capture/0.1"
+    }
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a280653c7f3f9294-EZE",
+      "connection": "keep-alive",
+      "content-length": "71",
+      "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Sat, 08 Aug 2026 17:56:03 GMT",
+      "etag": "W/\"47-oU/sgNR+c1j63UuofdvBK7c5hd4\"",
+      "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "server": "cloudflare",
+      "strict-transport-security": "max-age=63072000; includeSubDomains",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "statusCode": 401,
+      "message": "Missing API Key",
+      "name": "missing_api_key"
+    }
+  }
+}

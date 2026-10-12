@@ -1,0 +1,33 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/emails",
+    "headers": {
+      "User-Agent": "opensender-fixture-capture/0.1",
+      "Authorization": "Bearer re_REDACTED",
+      "Content-Type": "application/json"
+    },
+    "body": {}
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a280654efe1f9294-EZE",
+      "connection": "keep-alive",
+      "content-length": "82",
+      "content-type": "application/json",
+      "date": "Sat, 08 Aug 2026 17:56:06 GMT",
+      "ratelimit-limit": "10",
+      "ratelimit-policy": "10;w=1",
+      "ratelimit-remaining": "9",
+      "ratelimit-reset": "1",
+      "server": "cloudflare"
+    },
+    "body": {
+      "statusCode": 422,
+      "name": "missing_required_field",
+      "message": "Missing `to` field."
+    }
+  }
+}

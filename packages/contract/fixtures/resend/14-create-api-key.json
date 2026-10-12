@@ -1,0 +1,44 @@
+{
+  "note": "Created key token is scrubbed; key deleted immediately after.",
+  "request": {
+    "method": "POST",
+    "path": "/api-keys",
+    "headers": {
+      "User-Agent": "opensender-fixture-capture/0.1",
+      "Authorization": "Bearer re_REDACTED",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "name": "fixture-temp-key",
+      "permission": "sending_access"
+    }
+  },
+  "response": {
+    "status": 201,
+    "headers": {
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a2806588ccce9294-EZE",
+      "connection": "keep-alive",
+      "content-length": "111",
+      "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Sat, 08 Aug 2026 17:56:15 GMT",
+      "etag": "W/\"6f-xQPSHaDIGeZRY73kdk9/41w5YDo\"",
+      "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
+      "ratelimit-limit": "10",
+      "ratelimit-policy": "10;w=1",
+      "ratelimit-remaining": "7",
+      "ratelimit-reset": "1",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "server": "cloudflare",
+      "strict-transport-security": "max-age=63072000; includeSubDomains",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "id": "1acb43ac-f352-443c-b652-f35749321594",
+      "object": "api_key",
+      "token": "re_REDACTED"
+    }
+  }
+}

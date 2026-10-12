@@ -1,0 +1,43 @@
+{
+  "note": "Same Idempotency-Key, identical payload. Original send id was f58cbaa7-e6a3-405f-a00a-90788eceb224; compare with this response's id to confirm replay (no new send).",
+  "request": {
+    "method": "POST",
+    "path": "/emails",
+    "headers": {
+      "User-Agent": "opensender-fixture-capture/0.1",
+      "Authorization": "Bearer re_REDACTED",
+      "Idempotency-Key": "fixture-idem2-1786211894541",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "from": "onboarding@resend.dev",
+      "to": [
+        "owner@example.net"
+      ],
+      "subject": "opensender fixture capture",
+      "html": "<p>Golden fixture capture. Please ignore.</p>"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a2806883dcf2487e-EZE",
+      "connection": "keep-alive",
+      "content-length": "45",
+      "content-type": "application/json",
+      "date": "Sat, 08 Aug 2026 17:58:17 GMT",
+      "idempotent-replayed": "true",
+      "ratelimit-limit": "10",
+      "ratelimit-policy": "10;w=1",
+      "ratelimit-remaining": "8",
+      "ratelimit-reset": "1",
+      "server": "cloudflare",
+      "x-resend-daily-quota": "5",
+      "x-resend-monthly-quota": "11"
+    },
+    "body": {
+      "id": "f58cbaa7-e6a3-405f-a00a-90788eceb224"
+    }
+  }
+}

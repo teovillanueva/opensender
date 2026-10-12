@@ -1,0 +1,43 @@
+{
+  "note": "Successful send (testing mode: onboarding@resend.dev -> account owner). First use of this Idempotency-Key. Real send #2 of the session.",
+  "request": {
+    "method": "POST",
+    "path": "/emails",
+    "headers": {
+      "User-Agent": "opensender-fixture-capture/0.1",
+      "Authorization": "Bearer re_REDACTED",
+      "Idempotency-Key": "fixture-idem2-1786211894541",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "from": "onboarding@resend.dev",
+      "to": [
+        "owner@example.net"
+      ],
+      "subject": "opensender fixture capture",
+      "html": "<p>Golden fixture capture. Please ignore.</p>"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a28068756dab487e-EZE",
+      "connection": "keep-alive",
+      "content-length": "45",
+      "content-type": "application/json",
+      "date": "Sat, 08 Aug 2026 17:58:15 GMT",
+      "idempotent-replayed": "false",
+      "ratelimit-limit": "10",
+      "ratelimit-policy": "10;w=1",
+      "ratelimit-remaining": "8",
+      "ratelimit-reset": "1",
+      "server": "cloudflare",
+      "x-resend-daily-quota": "4",
+      "x-resend-monthly-quota": "10"
+    },
+    "body": {
+      "id": "f58cbaa7-e6a3-405f-a00a-90788eceb224"
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "note": "GET /domains using a temporary API key with permission sending_access (created then deleted). Captures the restricted-key error shape.",
+  "request": {
+    "method": "GET",
+    "path": "/domains",
+    "headers": {
+      "User-Agent": "opensender-fixture-capture/0.1",
+      "Authorization": "Bearer re_REDACTED"
+    }
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a28069c5bb943be2-EZE",
+      "connection": "keep-alive",
+      "content-length": "105",
+      "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Sat, 08 Aug 2026 17:59:08 GMT",
+      "etag": "W/\"69-ZjXNYqsVuJliqS/+1gb+vZ8qItE\"",
+      "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "server": "cloudflare",
+      "strict-transport-security": "max-age=63072000; includeSubDomains",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "statusCode": 401,
+      "message": "This API key is restricted to only send emails",
+      "name": "restricted_api_key"
+    }
+  }
+}

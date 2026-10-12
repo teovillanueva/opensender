@@ -1,0 +1,44 @@
+{
+  "note": "Same Idempotency-Key, mutated payload: expect 409 invalid_idempotent_request.",
+  "request": {
+    "method": "POST",
+    "path": "/emails",
+    "headers": {
+      "User-Agent": "opensender-fixture-capture/0.1",
+      "Authorization": "Bearer re_REDACTED",
+      "Idempotency-Key": "fixture-idem2-1786211894541",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "from": "onboarding@resend.dev",
+      "to": [
+        "owner@example.net"
+      ],
+      "subject": "opensender fixture capture MUTATED",
+      "html": "<p>Golden fixture capture. Please ignore.</p>"
+    }
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a28068871dc8487e-EZE",
+      "connection": "keep-alive",
+      "content-length": "236",
+      "content-type": "application/json",
+      "date": "Sat, 08 Aug 2026 17:58:17 GMT",
+      "ratelimit-limit": "10",
+      "ratelimit-policy": "10;w=1",
+      "ratelimit-remaining": "9",
+      "ratelimit-reset": "1",
+      "server": "cloudflare",
+      "x-resend-daily-quota": "5",
+      "x-resend-monthly-quota": "11"
+    },
+    "body": {
+      "statusCode": 409,
+      "name": "invalid_idempotent_request",
+      "message": "This idempotency key has been used with this HTTP method and endpoint within the last 24 hours, but the request body was modified and doesn't match the original request."
+    }
+  }
+}

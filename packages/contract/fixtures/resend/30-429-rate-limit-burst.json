@@ -1,0 +1,40 @@
+{
+  "note": "Burst of 15 concurrent GET /domains in <1s to trip the 10 req/s per-team limit. Statuses observed: [200, 200, 200, 200, 200, 200, 200, 200, 200, 429, 200, 429, 429, 429, 429]. This fixture is the first 429 response.",
+  "request": {
+    "method": "GET",
+    "path": "/domains",
+    "headers": {
+      "User-Agent": "opensender-fixture-capture/0.1",
+      "Authorization": "Bearer re_REDACTED"
+    }
+  },
+  "response": {
+    "status": 429,
+    "headers": {
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a28065c83a7af315-EZE",
+      "connection": "keep-alive",
+      "content-length": "217",
+      "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Sat, 08 Aug 2026 17:56:25 GMT",
+      "etag": "W/\"d9-UU1pcS+47QDnDp5HEjBlnF5osNQ\"",
+      "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
+      "ratelimit-limit": "10",
+      "ratelimit-policy": "10;w=1",
+      "ratelimit-remaining": "0",
+      "ratelimit-reset": "1",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "retry-after": "1",
+      "server": "cloudflare",
+      "strict-transport-security": "max-age=63072000; includeSubDomains",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "statusCode": 429,
+      "message": "Too many requests. You can only make 10 requests per second. See rate limit response headers for more information. Or contact support to increase rate limit.",
+      "name": "rate_limit_exceeded"
+    }
+  }
+}

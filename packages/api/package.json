@@ -1,0 +1,27 @@
+{
+  "name": "@opensender/api",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@hono/mcp": "0.3.1",
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "@opensender/contract": "workspace:*",
+    "@opensender/core": "workspace:*",
+    "hono": "4.13.1",
+    "hono-rate-limiter": "0.5.3",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "26.2.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.10"
+  }
+}

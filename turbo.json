@@ -1,0 +1,19 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "codegen": {
+      "inputs": ["resend.yaml", "extensions.yaml", "scripts/**"],
+      "outputs": ["openapi.json", "openapi.public.json", "src/generated/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^codegen", "codegen"]
+    },
+    "test": {
+      "dependsOn": ["^codegen", "codegen"]
+    },
+    "build": {
+      "dependsOn": ["^build", "codegen"],
+      "outputs": ["dist/**"]
+    }
+  }
+}

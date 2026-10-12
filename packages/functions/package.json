@@ -1,0 +1,32 @@
+{
+  "name": "@opensender/functions",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@aws-lambda-powertools/logger": "^2.34.0",
+    "@aws-lambda-powertools/metrics": "^2.34.0",
+    "@aws-sdk/client-cost-explorer": "3.1106.0",
+    "@aws-sdk/client-dynamodb": "3.1106.0",
+    "@aws-sdk/client-s3": "3.1106.0",
+    "@aws-sdk/client-scheduler": "3.1106.0",
+    "@aws-sdk/client-sesv2": "3.1106.0",
+    "@aws-sdk/client-sns": "3.1106.0",
+    "@aws-sdk/client-sqs": "3.1106.0",
+    "@aws-sdk/client-ssm": "3.1106.0",
+    "@aws-sdk/lib-dynamodb": "3.1106.0",
+    "@opensender/api": "workspace:*",
+    "@opensender/core": "workspace:*",
+    "@sentry/aws-serverless": "^10.70.0",
+    "@types/aws-lambda": "8.10.162",
+    "hono": "4.13.1",
+    "sst": "4.17.1"
+  },
+  "devDependencies": {
+    "@types/node": "26.2.0",
+    "typescript": "5.9.3"
+  }
+}

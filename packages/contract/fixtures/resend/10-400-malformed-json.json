@@ -1,0 +1,33 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/emails",
+    "headers": {
+      "User-Agent": "opensender-fixture-capture/0.1",
+      "Authorization": "Bearer re_REDACTED",
+      "Content-Type": "application/json"
+    },
+    "body_raw": "{ this is not json"
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a280657b4ed99294-EZE",
+      "connection": "keep-alive",
+      "content-length": "89",
+      "content-type": "application/json",
+      "date": "Sat, 08 Aug 2026 17:56:12 GMT",
+      "ratelimit-limit": "10",
+      "ratelimit-policy": "10;w=1",
+      "ratelimit-remaining": "8",
+      "ratelimit-reset": "1",
+      "server": "cloudflare"
+    },
+    "body": {
+      "statusCode": 400,
+      "name": "validation_error",
+      "message": "Request body must be valid JSON."
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "@opensender/contract",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "codegen": "tsx scripts/bundle.ts && openapi-typescript openapi.json -o src/generated/schema.d.ts",
+    "sync": "tsx scripts/sync.ts",
+    "typecheck": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "26.2.0",
+    "openapi-typescript": "7.13.0",
+    "tsx": "4.23.11",
+    "typescript": "5.9.3",
+    "vitest": "4.1.10",
+    "yaml": "2.9.0"
+  }
+}

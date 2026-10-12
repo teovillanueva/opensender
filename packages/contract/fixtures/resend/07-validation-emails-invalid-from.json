@@ -1,0 +1,38 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/emails",
+    "headers": {
+      "User-Agent": "opensender-fixture-capture/0.1",
+      "Authorization": "Bearer re_REDACTED",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "from": "not-an-email",
+      "to": ["ops@example.com"],
+      "subject": "fixture",
+      "html": "<p>fixture</p>"
+    }
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a2806557df469294-EZE",
+      "connection": "keep-alive",
+      "content-length": "174",
+      "content-type": "application/json",
+      "date": "Sat, 08 Aug 2026 17:56:11 GMT",
+      "ratelimit-limit": "10",
+      "ratelimit-policy": "10;w=1",
+      "ratelimit-remaining": "9",
+      "ratelimit-reset": "1",
+      "server": "cloudflare"
+    },
+    "body": {
+      "statusCode": 422,
+      "name": "validation_error",
+      "message": "Invalid `from` field. The email address needs to follow the `email@example.com` or `Name <email@example.com>` format."
+    }
+  }
+}

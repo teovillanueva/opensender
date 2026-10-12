@@ -1,0 +1,1053 @@
+# opensender extensions to the vendored Resend OpenAPI spec (resend.yaml).
+#
+# The upstream spec defines ZERO 4xx/5xx responses — the entire error contract
+# lives here (SPEC §5.1; authority: golden fixtures > docs > spec, ADR 0001).
+# Paths tagged `x-internal: true` are dashboard-only: they are bundled into
+# openapi.json (full) but stripped from openapi.public.json, which is what
+# `GET /openapi.json` serves.
+#
+# Merge semantics (scripts/bundle.ts):
+#   - `paths`, `webhooks`, `components` deep-merge into the upstream spec;
+#     collisions at the operation level are an error (we never silently
+#     override upstream shapes).
+#   - Every operation in the merged spec gets the standard error responses
+#     below (refs into components/responses) unless the operation already
+#     declares that status.
+openapi: 3.1.2
+info:
+  title: opensender extensions
+  version: 0.0.0
+
+x-standard-error-statuses:
+  "400": BadRequest
+  "401": Unauthorized
+  "403": Forbidden
+  "404": NotFound
+  "405": MethodNotAllowed
+  "422": UnprocessableEntity
+  "429": TooManyRequests
+  "451": UnavailableForLegalReasons
+  "500": InternalServerError
+
+paths:
+  # Dashboard auth (better-auth) is mounted under /auth/* and documents
+  # itself; it is intentionally not enumerated here.
+  /internal/bootstrap:
+    get:
+      x-internal: true
+      tags:
+        - Internal
+      summary: First-run bootstrap status
+      security: []
+      responses:
+        "200":
+          description: Whether the instance still has zero users.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - needs_bootstrap
+                properties:
+                  needs_bootstrap:
+                    type: boolean
+    post:
+      x-internal: true
+      tags:
+        - Internal
+      summary: Create the first admin user
+      description: >-
+        Gated by the deploy-emitted bootstrap token; rejected as soon as any
+        user exists (SPEC §13.2).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - email
+                - password
+                - name
+              properties:
+                token:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                name:
+                  type: string
+      responses:
+        "201":
+          description: First admin created.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - user_id
+                properties:
+                  user_id:
+                    type: string
+  /health:
+    get:
+      x-internal: true
+      tags:
+        - Internal
+      summary: Instance health check
+      description: >-
+        Uptime probe for Better Stack. Performs one light DynamoDB read and
+        never calls SES. Not part of the Resend-compatible surface.
+      security: []
+      responses:
+        "200":
+          description: Instance is healthy.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                properties:
+                  status:
+                    type: string
+                    const: ok
+
+  # x-internal dashboard read models + actions (SPEC §13). Bundled into
+  # openapi.json (full) but stripped from openapi.public.json. Authenticated by
+  # the dashboard session; the generated client types these for the dashboard.
+  /internal/emails:
+    get:
+      x-internal: true
+      tags:
+        - Internal
+      summary: Email delivery log
+      description: Team-scoped, newest-first, cursor-paginated (SPEC §13.3).
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: direction
+          in: query
+          schema:
+            type: string
+            enum:
+              - outbound
+              - inbound
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: after
+          in: query
+          schema:
+            type: string
+        - name: before
+          in: query
+          schema:
+            type: string
+        - name: api_key_id
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: One page of emails.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalEmailList"
+  /internal/emails/{id}:
+    get:
+      x-internal: true
+      tags:
+        - Internal
+      summary: Email detail with event timeline
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The email plus its ordered event timeline.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalEmailDetail"
+  /internal/webhooks/{id}/deliveries:
+    get:
+      x-internal: true
+      tags:
+        - Internal
+      summary: Webhook delivery log
+      description: One endpoint's attempts, newest-first, cursor-paginated.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: One page of delivery attempts.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalDeliveryList"
+  /internal/webhooks/{id}/deliveries/{deliveryId}/replay:
+    post:
+      x-internal: true
+      tags:
+        - Internal
+      summary: Replay a webhook delivery
+      description: Re-enqueues the stored signed payload through the dispatcher.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: deliveryId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Replay accepted.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - object
+                  - id
+                  - replayed
+                properties:
+                  object:
+                    type: string
+                  id:
+                    type: string
+                  replayed:
+                    type: boolean
+  /internal/usage:
+    get:
+      x-internal: true
+      tags:
+        - Internal
+      summary: Team usage, quota limits, and tenant status
+      responses:
+        "200":
+          description: Current usage snapshot.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalUsage"
+  /internal/metrics:
+    get:
+      x-internal: true
+      tags:
+        - Internal
+      summary: Aggregated outbound metrics
+      description: Daily volume/outcome buckets plus per-domain breakdown (SPEC §13).
+      parameters:
+        - name: days
+          in: query
+          schema:
+            type: integer
+        - name: domain
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Metrics for the trailing window.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalMetrics"
+  /internal/suppressions:
+    get:
+      x-internal: true
+      tags:
+        - Internal
+      summary: Suppression list
+      description: Team-scoped, newest-first, cursor-paginated.
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: One page of suppressions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalSuppressionList"
+    post:
+      x-internal: true
+      tags:
+        - Internal
+      summary: Manually suppress an address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+      responses:
+        "201":
+          description: The created suppression.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalSuppression"
+  /internal/suppressions/{email}:
+    get:
+      x-internal: true
+      tags:
+        - Internal
+      summary: Suppression detail with source event payload
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The suppression plus the bounce/complaint payload that caused it.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalSuppression"
+    delete:
+      x-internal: true
+      tags:
+        - Internal
+      summary: Remove a suppression
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deletion confirmation.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - email
+                  - deleted
+                properties:
+                  object:
+                    type: string
+                  email:
+                    type: string
+                  deleted:
+                    type: boolean
+
+  # OAuth 2.1 provider surface. The authorization server
+  # itself (authorize/token/revoke/register) lives under /auth/oauth2/* and is
+  # documented by its own RFC 8414 metadata endpoint; only the protected-
+  # resource metadata and the dashboard's grant management are enumerated here.
+  /.well-known/oauth-protected-resource:
+    get:
+      tags:
+        - OAuth
+      summary: OAuth protected resource metadata (RFC 9728)
+      description: >
+        Entry point of the MCP connect flow: unauthenticated /mcp calls
+        advertise this document via WWW-Authenticate; it names the
+        authorization server whose RFC 8414 metadata drives dynamic client
+        registration and the authorize flow. Access tokens are JWTs only —
+        clients MUST send the RFC 8707 `resource` parameter (this API's
+        origin) on authorize and token requests, or they receive an opaque
+        token the API rejects.
+      security: []
+      responses:
+        "200":
+          description: Protected resource metadata.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - resource
+                  - authorization_servers
+                properties:
+                  resource:
+                    type: string
+                  authorization_servers:
+                    type: array
+                    items:
+                      type: string
+                  bearer_methods_supported:
+                    type: array
+                    items:
+                      type: string
+                  scopes_supported:
+                    type: array
+                    items:
+                      type: string
+
+  /internal/oauth-grants:
+    get:
+      x-internal: true
+      tags:
+        - Internal
+      summary: OAuth grants of the signed-in user on the active team
+      description: >
+        Requires a dashboard session — grants belong to a user, so API-key
+        principals get 401.
+      responses:
+        "200":
+          description: Consented apps for this user + team.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalOAuthGrantList"
+  /internal/oauth-grants/domains:
+    post:
+      x-internal: true
+      tags:
+        - Internal
+      summary: Narrow an OAuth grant to specific sending domains
+      description: >
+        Called by the consent screen before accepting consent so the first
+        token already carries the restriction. Requires a dashboard session.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - client_id
+                - domain_ids
+              properties:
+                client_id:
+                  type: string
+                domain_ids:
+                  description: Domain ids of the active team; null clears the restriction.
+                  type:
+                    - array
+                    - "null"
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: The stored restriction.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - client_id
+                  - domain_ids
+                properties:
+                  client_id:
+                    type: string
+                  domain_ids:
+                    type:
+                      - array
+                      - "null"
+                    items:
+                      type: string
+  /internal/oauth-grants/{id}/revoke:
+    post:
+      x-internal: true
+      tags:
+        - Internal
+      summary: Revoke an OAuth grant
+      description: >
+        Deletes the consent and revokes its refresh tokens; outstanding JWT
+        access tokens die at their 15-minute expiry.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Revocation confirmation.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - revoked
+                properties:
+                  id:
+                    type: string
+                  revoked:
+                    type: boolean
+
+  # Contacts are served nested under an audience/segment (SPEC §11); the
+  # dashboard dogfoods these through the generated client. The upstream spec's
+  # flat /contacts surface is a different generation we do not mount.
+  /audiences/{id}/contacts:
+    get:
+      tags:
+        - Contacts
+      summary: List contacts in an audience
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The audience's contacts.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactList"
+    post:
+      tags:
+        - Contacts
+      summary: Add a contact to an audience
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactCreate"
+      responses:
+        "201":
+          description: Contact created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactIdResponse"
+  /audiences/{id}/contacts/{contactId}:
+    get:
+      tags:
+        - Contacts
+      summary: Get a contact by id or email
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The contact.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactDetail"
+    patch:
+      tags:
+        - Contacts
+      summary: Update a contact
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactUpdate"
+      responses:
+        "200":
+          description: Contact updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactIdResponse"
+    delete:
+      tags:
+        - Contacts
+      summary: Remove a contact from an audience
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Contact removed.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - object
+                  - contact
+                  - deleted
+                properties:
+                  object:
+                    type: string
+                  contact:
+                    type: string
+                  deleted:
+                    type: boolean
+
+components:
+  schemas:
+    ContactSummary:
+      type: object
+      required:
+        - id
+        - email
+        - first_name
+        - last_name
+        - created_at
+        - unsubscribed
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        first_name:
+          type: string
+          nullable: true
+        last_name:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        unsubscribed:
+          type: boolean
+    ContactDetail:
+      allOf:
+        - $ref: "#/components/schemas/ContactSummary"
+        - type: object
+          properties:
+            object:
+              type: string
+            properties:
+              type: object
+              additionalProperties: true
+    ContactList:
+      type: object
+      required:
+        - object
+        - has_more
+        - data
+      properties:
+        object:
+          type: string
+          const: list
+        has_more:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContactSummary"
+    ContactCreate:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        unsubscribed:
+          type: boolean
+    ContactUpdate:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        unsubscribed:
+          type: boolean
+    ContactIdResponse:
+      type: object
+      required:
+        - object
+        - id
+      properties:
+        object:
+          type: string
+        id:
+          type: string
+    InternalCursorList:
+      type: object
+      description: Cursor-paginated envelope for x-internal list endpoints.
+      required:
+        - object
+        - has_more
+        - cursor
+        - data
+      properties:
+        object:
+          type: string
+          const: list
+        has_more:
+          type: boolean
+        cursor:
+          type: string
+          nullable: true
+        data:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+    InternalEmailList:
+      allOf:
+        - $ref: "#/components/schemas/InternalCursorList"
+    InternalDeliveryList:
+      allOf:
+        - $ref: "#/components/schemas/InternalCursorList"
+    InternalTimelineEvent:
+      type: object
+      required:
+        - type
+        - occurred_at
+      properties:
+        type:
+          type: string
+        occurred_at:
+          type: string
+        data: {}
+    InternalSuppression:
+      type: object
+      required:
+        - email
+        - reason
+        - created_at
+      additionalProperties: true
+      properties:
+        object:
+          type: string
+        email:
+          type: string
+        reason:
+          type: string
+        source_email_id:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+        source_event: {}
+    InternalSuppressionList:
+      allOf:
+        - $ref: "#/components/schemas/InternalCursorList"
+    InternalMetrics:
+      type: object
+      required:
+        - object
+        - days
+        - totals
+        - daily
+        - domains
+        - rates
+      additionalProperties: true
+      properties:
+        object:
+          type: string
+        days:
+          type: integer
+        start:
+          type: string
+        end:
+          type: string
+        totals:
+          type: object
+          additionalProperties: true
+        rates:
+          type: object
+          additionalProperties: true
+        daily:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        domains:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+    InternalEmailDetail:
+      type: object
+      description: An email's wire shape plus its ordered event timeline.
+      required:
+        - id
+        - events
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+        events:
+          type: array
+          items:
+            $ref: "#/components/schemas/InternalTimelineEvent"
+    InternalOAuthGrant:
+      type: object
+      required:
+        - id
+        - client_id
+        - scopes
+      properties:
+        id:
+          type: string
+          description: Consent id — the handle revocation takes.
+        client_id:
+          type: string
+        client_name:
+          type:
+            - string
+            - "null"
+        scopes:
+          type: array
+          items:
+            type: string
+        created_at:
+          type:
+            - string
+            - "null"
+        last_used_at:
+          description: Newest refresh-token issuance — active apps refresh every ~15 minutes.
+          type:
+            - string
+            - "null"
+        domain_ids:
+          description: Sending-domain restriction; null = all domains.
+          type:
+            - array
+            - "null"
+          items:
+            type: string
+    InternalOAuthGrantList:
+      type: object
+      required:
+        - object
+        - data
+      properties:
+        object:
+          type: string
+          const: list
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/InternalOAuthGrant"
+    InternalUsage:
+      type: object
+      required:
+        - object
+        - team
+        - sent
+        - limits
+      properties:
+        object:
+          type: string
+          const: usage
+        team:
+          type: object
+          required:
+            - id
+            - name
+            - status
+            - plan
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            status:
+              type: string
+            plan:
+              type: string
+        sent:
+          type: object
+          required:
+            - daily
+            - monthly
+          properties:
+            daily:
+              type: integer
+            monthly:
+              type: integer
+        limits:
+          type: object
+          required:
+            - daily_email_limit
+            - api_rate_limit_per_second
+          properties:
+            daily_email_limit:
+              type: integer
+            api_rate_limit_per_second:
+              type: integer
+    ErrorResponse:
+      type: object
+      description: >-
+        Flat Resend error body. `name` values and their status pairings follow
+        the fixture-verified table in SPEC §5.1 (e.g. an invalid API key is
+        400 `validation_error` on the wire, not the documented 403
+        `invalid_api_key`).
+      required:
+        - statusCode
+        - name
+        - message
+      properties:
+        statusCode:
+          type: integer
+        name:
+          type: string
+          enum:
+            - missing_api_key
+            - restricted_api_key
+            - validation_error
+            - not_found
+            - method_not_allowed
+            - missing_required_field
+            - invalid_attachment
+            - invalid_from_address
+            - invalid_access
+            - invalid_parameter
+            - invalid_region
+            - invalid_idempotency_key
+            - invalid_idempotent_request
+            - concurrent_idempotent_requests
+            - rate_limit_exceeded
+            - daily_quota_exceeded
+            - monthly_quota_exceeded
+            - security_error
+            - internal_server_error
+            - application_error
+        message:
+          type: string
+  responses:
+    BadRequest:
+      description: >-
+        Malformed request — invalid JSON, invalid API key (fixture-verified as
+        400 `validation_error`), or bad idempotency key length.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unauthorized:
+      description: Missing API key, or a restricted key used on a non-send route.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Forbidden:
+      description: Domain not verified, recipient restrictions, or plan limits.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    MethodNotAllowed:
+      description: Method not allowed for the requested path.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    UnprocessableEntity:
+      description: Validation failure (missing/invalid fields).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    TooManyRequests:
+      description: >-
+        Rate limit (10 req/s per team) or daily/monthly quota exceeded.
+        Carries `retry-after` plus the `ratelimit-*` headers.
+      headers:
+        retry-after:
+          schema:
+            type: string
+        ratelimit-limit:
+          schema:
+            type: string
+        ratelimit-remaining:
+          schema:
+            type: string
+        ratelimit-reset:
+          schema:
+            type: string
+        ratelimit-policy:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    UnavailableForLegalReasons:
+      description: Security block.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    InternalServerError:
+      description: Unexpected server error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"

@@ -1,0 +1,75 @@
+{
+  "eventType": "Bounce",
+  "bounce": {
+    "feedbackId": "0100019fe7e4ff99-230c5b3b-7b2b-41fe-ba89-66a2bc35a253-000000",
+    "bounceType": "Permanent",
+    "bounceSubType": "General",
+    "bouncedRecipients": [
+      {
+        "emailAddress": "bounce@simulator.amazonses.com",
+        "action": "failed",
+        "status": "5.1.1",
+        "diagnosticCode": "smtp; 550 5.1.1 As requested: user unknown <bounce@simulator.amazonses.com>"
+      }
+    ],
+    "timestamp": "2026-08-09T18:59:32.331Z",
+    "remoteMtaIp": "52.72.189.48",
+    "reportingMTA": "dns; a8-176.smtp-out.amazonses.com"
+  },
+  "mail": {
+    "timestamp": "2026-08-09T18:59:31.943Z",
+    "source": "hello@test.mailing.example.com",
+    "sourceArn": "arn:aws:ses:us-east-1:123456789012:identity/test.mailing.example.com",
+    "sendingAccountId": "123456789012",
+    "tenant": {
+      "tenantName": "team-kbRFlMJf9jGwSyfErueXH4cOcBrJUdT6",
+      "tenantId": "tn-95e7fa17f0000a335091660232901"
+    },
+    "messageId": "0100019fe7e4fde7-4d8c7231-b3b5-4d22-a778-04ca7c6e1948-000000",
+    "destination": ["bounce@simulator.amazonses.com"],
+    "headersTruncated": false,
+    "headers": [
+      {
+        "name": "From",
+        "value": "hello@test.mailing.example.com"
+      },
+      {
+        "name": "To",
+        "value": "bounce@simulator.amazonses.com"
+      },
+      {
+        "name": "Subject",
+        "value": "opensender M4 acceptance \u2014 bounce"
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "Content-Type",
+        "value": "text/html; charset=UTF-8"
+      },
+      {
+        "name": "Content-Transfer-Encoding",
+        "value": "7bit"
+      }
+    ],
+    "commonHeaders": {
+      "from": ["hello@test.mailing.example.com"],
+      "to": ["bounce@simulator.amazonses.com"],
+      "messageId": "0100019fe7e4fde7-4d8c7231-b3b5-4d22-a778-04ca7c6e1948-000000",
+      "subject": "opensender M4 acceptance \u2014 bounce"
+    },
+    "tags": {
+      "email_id": ["8c1ffc6e-1ca2-4308-ac8e-63488e80d646"],
+      "ses:source-tls-version": ["TLSv1.3"],
+      "ses:tenant": ["team-kbRFlMJf9jGwSyfErueXH4cOcBrJUdT6"],
+      "ses:operation": ["SendEmail"],
+      "ses:configuration-set": ["domain-bc8abe46-8656-4da4-96c6-e79002352303"],
+      "ses:source-ip": ["44.202.237.119"],
+      "ses:from-domain": ["test.mailing.example.com"],
+      "ses:caller-identity": ["opensender-production-ApiRole-srbdnfwn"],
+      "team_id": ["kbRFlMJf9jGwSyfErueXH4cOcBrJUdT6"]
+    }
+  }
+}

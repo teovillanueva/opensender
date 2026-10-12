@@ -1,0 +1,42 @@
+{
+  "request": {
+    "method": "POST",
+    "path": "/audiences",
+    "headers": {
+      "User-Agent": "opensender-fixture-capture/0.1",
+      "Authorization": "Bearer re_REDACTED",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "name": "fixture-temp-audience"
+    }
+  },
+  "response": {
+    "status": 201,
+    "headers": {
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a280658eeeac9294-EZE",
+      "connection": "keep-alive",
+      "content-length": "96",
+      "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Sat, 08 Aug 2026 17:56:16 GMT",
+      "etag": "W/\"60-6wmqNOLmPaJ8pAoVGGMXpLpjTwY\"",
+      "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
+      "ratelimit-limit": "10",
+      "ratelimit-policy": "10;w=1",
+      "ratelimit-remaining": "8",
+      "ratelimit-reset": "1",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "server": "cloudflare",
+      "strict-transport-security": "max-age=63072000; includeSubDomains",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "object": "audience",
+      "id": "d1ef2c68-e254-431c-a96d-40eabcf623d1",
+      "name": "fixture-temp-audience"
+    }
+  }
+}

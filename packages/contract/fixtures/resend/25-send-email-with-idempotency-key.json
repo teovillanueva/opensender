@@ -1,0 +1,44 @@
+{
+  "note": "First call with this Idempotency-Key (real send #1).",
+  "request": {
+    "method": "POST",
+    "path": "/emails",
+    "headers": {
+      "User-Agent": "opensender-fixture-capture/0.1",
+      "Idempotency-Key": "fixture-idem-1786211780744",
+      "Authorization": "Bearer re_REDACTED",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "from": "onboarding@resend.dev",
+      "to": ["ops@example.com"],
+      "subject": "opensender fixture capture",
+      "html": "<p>Golden fixture capture. Ignore.</p>"
+    }
+  },
+  "response": {
+    "status": 403,
+    "headers": {
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a28065ae1c6b9294-EZE",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Sat, 08 Aug 2026 17:56:21 GMT",
+      "idempotent-replayed": "false",
+      "ratelimit-limit": "10",
+      "ratelimit-policy": "10;w=1",
+      "ratelimit-remaining": "8",
+      "ratelimit-reset": "1",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-resend-daily-quota": "4",
+      "x-resend-monthly-quota": "10"
+    },
+    "body": {
+      "statusCode": 403,
+      "name": "validation_error",
+      "message": "You can only send testing emails to your own email address (owner@example.net). To send emails to other recipients, please verify a domain at resend.com/domains, and change the `from` address to an email using this domain."
+    }
+  }
+}

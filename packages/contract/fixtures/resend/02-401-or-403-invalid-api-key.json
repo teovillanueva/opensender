@@ -1,0 +1,34 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/domains",
+    "headers": {
+      "User-Agent": "opensender-fixture-capture/0.1",
+      "Authorization": "Bearer re_invalid_1234"
+    }
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a28065422fc39294-EZE",
+      "connection": "keep-alive",
+      "content-length": "75",
+      "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Sat, 08 Aug 2026 17:56:04 GMT",
+      "etag": "W/\"4b-0MlU54AyUkH5Yrc9nOyIudHDK8o\"",
+      "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "server": "cloudflare",
+      "strict-transport-security": "max-age=63072000; includeSubDomains",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "statusCode": 400,
+      "message": "API key is invalid",
+      "name": "validation_error"
+    }
+  }
+}

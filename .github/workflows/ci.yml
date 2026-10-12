@@ -1,0 +1,38 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Contract codegen gate: regenerating the bundle and types must be a
+      # no-op against the committed output (SPEC §2). Staging first also
+      # catches NEW generated files that a plain `git diff` would miss.
+      - run: pnpm codegen
+      - run: git add -A && git diff --cached --exit-code
+
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm depcruise
+      - run: pnpm knip
+      # Offline only — the cloud-touching acceptance suite runs on demand (SPEC §17).
+      - run: pnpm test

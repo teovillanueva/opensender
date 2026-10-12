@@ -1,0 +1,15 @@
+# Secrets — never commit (.env holds raw IAM + Resend keys)
+.env
+.env.*
+!.env.example
+
+# Dependencies & build output
+node_modules/
+dist/
+.turbo/
+
+# SST
+.sst/
+
+# OS / editor noise
+.DS_Store

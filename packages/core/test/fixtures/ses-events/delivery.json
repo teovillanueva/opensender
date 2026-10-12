@@ -1,0 +1,69 @@
+{
+  "eventType": "Delivery",
+  "mail": {
+    "timestamp": "2026-08-09T19:00:07.783Z",
+    "source": "hello@test.mailing.example.com",
+    "sourceArn": "arn:aws:ses:us-east-1:123456789012:identity/test.mailing.example.com",
+    "sendingAccountId": "123456789012",
+    "tenant": {
+      "tenantName": "team-kbRFlMJf9jGwSyfErueXH4cOcBrJUdT6",
+      "tenantId": "tn-95e7fa17f0000a335091660232901"
+    },
+    "messageId": "0100019fe7e589e7-c1a3d4d8-0a73-4219-9363-befe5552dcd0-000000",
+    "destination": ["success@simulator.amazonses.com"],
+    "headersTruncated": false,
+    "headers": [
+      {
+        "name": "From",
+        "value": "hello@test.mailing.example.com"
+      },
+      {
+        "name": "To",
+        "value": "success@simulator.amazonses.com"
+      },
+      {
+        "name": "Subject",
+        "value": "breaker 2"
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "Content-Type",
+        "value": "text/html; charset=UTF-8"
+      },
+      {
+        "name": "Content-Transfer-Encoding",
+        "value": "7bit"
+      }
+    ],
+    "commonHeaders": {
+      "from": ["hello@test.mailing.example.com"],
+      "to": ["success@simulator.amazonses.com"],
+      "messageId": "0100019fe7e589e7-c1a3d4d8-0a73-4219-9363-befe5552dcd0-000000",
+      "subject": "breaker 2"
+    },
+    "tags": {
+      "email_id": ["9eceb3f6-1914-45af-9594-cf600ffcb976"],
+      "ses:source-tls-version": ["TLSv1.3"],
+      "ses:tenant": ["team-kbRFlMJf9jGwSyfErueXH4cOcBrJUdT6"],
+      "ses:operation": ["SendEmail"],
+      "ses:configuration-set": ["domain-bc8abe46-8656-4da4-96c6-e79002352303"],
+      "ses:outgoing-tls-version": ["TLSv1.3"],
+      "ses:source-ip": ["44.202.237.119"],
+      "ses:from-domain": ["test.mailing.example.com"],
+      "ses:caller-identity": ["opensender-production-ApiRole-srbdnfwn"],
+      "team_id": ["kbRFlMJf9jGwSyfErueXH4cOcBrJUdT6"],
+      "ses:outgoing-ip": ["54.240.8.60"]
+    }
+  },
+  "delivery": {
+    "timestamp": "2026-08-09T19:00:08.113Z",
+    "processingTimeMillis": 330,
+    "recipients": ["success@simulator.amazonses.com"],
+    "smtpResponse": "250 Ok",
+    "remoteMtaIp": "3.212.59.52",
+    "reportingMTA": "a8-60.smtp-out.amazonses.com"
+  }
+}

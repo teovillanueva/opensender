@@ -1,0 +1,39 @@
+{
+  "request": {
+    "method": "GET",
+    "path": "/emails/00000000-0000-0000-0000-000000000000",
+    "headers": {
+      "User-Agent": "opensender-fixture-capture/0.1",
+      "Authorization": "Bearer re_REDACTED"
+    }
+  },
+  "response": {
+    "status": 404,
+    "headers": {
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a2806547a8bd9294-EZE",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Sat, 08 Aug 2026 17:56:04 GMT",
+      "etag": "W/\"41-p3C2dx2OcFBN5Oei6JQYP0wfSB4\"",
+      "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
+      "ratelimit-limit": "10",
+      "ratelimit-policy": "10;w=1",
+      "ratelimit-remaining": "9",
+      "ratelimit-reset": "1",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "server": "cloudflare",
+      "strict-transport-security": "max-age=63072000; includeSubDomains",
+      "transfer-encoding": "chunked",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "statusCode": 404,
+      "message": "Email not found",
+      "name": "not_found"
+    }
+  }
+}

@@ -1,0 +1,105 @@
+name: sync-instances
+
+# Merges `main` into each downstream instance repo once CI passes on a push to
+# `main`. A push to an instance's `main` is what deploys it (e.g. SST Console
+# Autodeploy). A merge conflict opens (or refreshes) a PR there instead.
+#
+# Targets live only in secrets, never in this file or in logs:
+#   INSTANCE_FORKS  JSON array of {"repo": "<owner>/<name>", "token": "<SECRET_NAME>"}
+#   <SECRET_NAME>   token with contents, pull-requests and workflows write access
+#                   to that repo
+
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: sync-instances
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    # Instance repos inherit this file through the merge; only upstream runs it.
+    if: >-
+      github.repository == 'teovillanueva/opensender' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event.workflow_run.event == 'push' &&
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_repository.full_name == github.repository))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge main into instances
+        env:
+          SECRETS: ${{ toJSON(secrets) }}
+          UPSTREAM_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+          SYNC_BRANCH: sync/upstream-main
+        run: |
+          set -uo pipefail
+          targets=$(jq -c '(.INSTANCE_FORKS // "[]") | fromjson' <<<"$SECRETS")
+          count=$(jq length <<<"$targets")
+          if [ "$count" -eq 0 ]; then
+            echo "No instances configured"
+            exit 0
+          fi
+
+          # Mask every identifying value before anything can print it.
+          for i in $(seq 0 $((count - 1))); do
+            repo=$(jq -r ".[$i].repo" <<<"$targets")
+            echo "::add-mask::$repo"
+            echo "::add-mask::${repo%%/*}"
+          done
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          failed=0
+          for i in $(seq 0 $((count - 1))); do
+            n=$((i + 1))
+            echo "::group::instance $n"
+            repo=$(jq -r ".[$i].repo" <<<"$targets")
+            token_name=$(jq -r ".[$i].token" <<<"$targets")
+            token=$(jq -r --arg k "$token_name" '.[$k] // empty' <<<"$SECRETS")
+            if [ -z "$token" ]; then
+              echo "::error::instance $n: token secret is missing"
+              failed=1; echo "::endgroup::"; continue
+            fi
+            url="https://x-access-token:${token}@github.com/${repo}.git"
+            work=$(mktemp -d)
+
+            if ! git clone -q --branch main "$url" "$work" 2>/dev/null; then
+              echo "::error::instance $n: clone failed (check the token)"
+              failed=1; echo "::endgroup::"; continue
+            fi
+            cd "$work"
+            git fetch -q "https://github.com/${GITHUB_REPOSITORY}.git" "$UPSTREAM_SHA"
+
+            if git merge-base --is-ancestor "$UPSTREAM_SHA" HEAD; then
+              echo "instance $n: already up to date"
+            elif git merge -q --no-edit -m "Merge upstream main (${UPSTREAM_SHA::7})" "$UPSTREAM_SHA"; then
+              if git push -q origin HEAD:main 2>/dev/null; then
+                echo "instance $n: merged and pushed"
+              else
+                echo "::error::instance $n: push failed"
+                failed=1
+              fi
+            else
+              git merge --abort
+              git push -q --force origin "${UPSTREAM_SHA}:refs/heads/${SYNC_BRANCH}" 2>/dev/null
+              if [ -z "$(GH_TOKEN=$token gh pr list -R "$repo" --head "$SYNC_BRANCH" --state open --json number -q '.[].number')" ]; then
+                GH_TOKEN=$token gh pr create -R "$repo" --base main --head "$SYNC_BRANCH" \
+                  --title "Sync upstream main" \
+                  --body "Upstream \`main\` (${UPSTREAM_SHA}) conflicts with this instance. Resolve and merge to deploy." >/dev/null
+              fi
+              echo "::error::instance $n: merge conflict, opened a PR"
+              failed=1
+            fi
+            cd - >/dev/null
+            echo "::endgroup::"
+          done
+          exit "$failed"

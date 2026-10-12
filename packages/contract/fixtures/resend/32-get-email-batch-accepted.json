@@ -1,0 +1,51 @@
+{
+  "note": "Email accepted (202) via x-batch-validation: permissive despite recipient restriction that 403s single sends. Fetched to observe its final status.",
+  "request": {
+    "method": "GET",
+    "path": "/emails/548b6c02-90dd-4d31-a993-4c6acf9dc807",
+    "headers": {
+      "User-Agent": "opensender-fixture-capture/0.1",
+      "Authorization": "Bearer re_REDACTED"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a280686f7d7d487e-EZE",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Sat, 08 Aug 2026 17:58:14 GMT",
+      "etag": "W/\"1ba-CNfdPncW98UPx6XGoPorbtBGx3U\"",
+      "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
+      "ratelimit-limit": "10",
+      "ratelimit-policy": "10;w=1",
+      "ratelimit-remaining": "9",
+      "ratelimit-reset": "1",
+      "referrer-policy": "strict-origin-when-cross-origin",
+      "server": "cloudflare",
+      "strict-transport-security": "max-age=63072000; includeSubDomains",
+      "transfer-encoding": "chunked",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY"
+    },
+    "body": {
+      "object": "email",
+      "id": "548b6c02-90dd-4d31-a993-4c6acf9dc807",
+      "to": ["ops@example.com"],
+      "from": "onboarding@resend.dev",
+      "created_at": "2026-08-08 17:56:23.733000+00",
+      "subject": "opensender batch fixture (valid item)",
+      "bcc": null,
+      "cc": null,
+      "reply_to": null,
+      "last_event": "failed",
+      "scheduled_at": null,
+      "message_id": "<362269f3-19ad-44a5-8423-b6002f0df114@email.amazonses.com>",
+      "html": "<p>Batch fixture. Ignore.</p>",
+      "text": "Batch fixture. Ignore."
+    }
+  }
+}

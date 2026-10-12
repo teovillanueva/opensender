@@ -1,0 +1,72 @@
+{
+  "eventType": "Complaint",
+  "complaint": {
+    "feedbackId": "0100019fe7e61352-f32673d6-29e1-4223-b520-09d11239e9f9-000000",
+    "complaintSubType": null,
+    "complainedRecipients": [
+      {
+        "emailAddress": "complaint@simulator.amazonses.com"
+      }
+    ],
+    "timestamp": "2026-08-09T19:00:42.869Z",
+    "userAgent": "Amazon SES Mailbox Simulator",
+    "complaintFeedbackType": "abuse",
+    "arrivalDate": "2026-08-09T19:00:42.869Z"
+  },
+  "mail": {
+    "timestamp": "2026-08-09T19:00:42.507Z",
+    "source": "hello@test.mailing.example.com",
+    "sourceArn": "arn:aws:ses:us-east-1:123456789012:identity/test.mailing.example.com",
+    "sendingAccountId": "123456789012",
+    "tenant": {
+      "tenantName": "team-kbRFlMJf9jGwSyfErueXH4cOcBrJUdT6",
+      "tenantId": "tn-95e7fa17f0000a335091660232901"
+    },
+    "messageId": "0100019fe7e6118b-e14c9371-774f-4b84-874c-0ea36cf790cf-000000",
+    "destination": ["complaint@simulator.amazonses.com"],
+    "headersTruncated": false,
+    "headers": [
+      {
+        "name": "From",
+        "value": "hello@test.mailing.example.com"
+      },
+      {
+        "name": "To",
+        "value": "complaint@simulator.amazonses.com"
+      },
+      {
+        "name": "Subject",
+        "value": "complaint fixture"
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "Content-Type",
+        "value": "text/html; charset=UTF-8"
+      },
+      {
+        "name": "Content-Transfer-Encoding",
+        "value": "7bit"
+      }
+    ],
+    "commonHeaders": {
+      "from": ["hello@test.mailing.example.com"],
+      "to": ["complaint@simulator.amazonses.com"],
+      "messageId": "0100019fe7e6118b-e14c9371-774f-4b84-874c-0ea36cf790cf-000000",
+      "subject": "complaint fixture"
+    },
+    "tags": {
+      "email_id": ["4574298e-20fa-4df5-b89b-b6d99959c6be"],
+      "ses:source-tls-version": ["TLSv1.3"],
+      "ses:tenant": ["team-kbRFlMJf9jGwSyfErueXH4cOcBrJUdT6"],
+      "ses:operation": ["SendEmail"],
+      "ses:configuration-set": ["domain-bc8abe46-8656-4da4-96c6-e79002352303"],
+      "ses:source-ip": ["44.202.237.119"],
+      "ses:from-domain": ["test.mailing.example.com"],
+      "ses:caller-identity": ["opensender-production-ApiRole-srbdnfwn"],
+      "team_id": ["kbRFlMJf9jGwSyfErueXH4cOcBrJUdT6"]
+    }
+  }
+}

@@ -5,24 +5,28 @@
  * instances (SPEC §3.2); `sst dev` shares the same stage via Live mode.
  */
 export default $config({
-  async app(input) {
-    const { instanceConfig } = await import("./instance.config");
-    return {
+  app(input) {
+    const defaultTags = { tags: { app: "opensender", stage: input.stage } };
+    const app = {
       name: "opensender",
-      home: "aws",
+      home: "aws" as const,
       protect: input.stage === "production",
-      removal: input.stage === "production" ? "retain" : "remove",
+      removal: input.stage === "production" ? ("retain" as const) : ("remove" as const),
       // Global cost-allocation tags on every AWS resource (SPEC §15). The
       // operator activates `app`/`stage` as cost-allocation tags once in
       // Billing (they surface in Cost Explorer ~24h later) — SETUP.md.
-      providers: {
-        aws: {
-          region: instanceConfig.region,
-          defaultTags: { tags: { app: "opensender", stage: input.stage } },
-        },
-        random: "4.16.6",
-      },
+      providers: { aws: { defaultTags }, random: "4.16.6" },
     };
+    const withRegion = import("./instance.config").then(({ instanceConfig }) => ({
+      ...app,
+      providers: { ...app.providers, aws: { region: instanceConfig.region, defaultTags } },
+    }));
+    // SST Console Autodeploy evaluates this file alone (no instance.config.ts)
+    // and serializes app() without awaiting it, so the static fields ride on
+    // the promise and its rejection must not crash that process. The CLI
+    // awaits `withRegion` and still sees any import error.
+    withRegion.catch(() => {});
+    return Object.assign(withRegion, app);
   },
   // SST Console Autodeploy: a push to `main` deploys the single `production`
   // stage; every other branch, PR and tag is skipped.

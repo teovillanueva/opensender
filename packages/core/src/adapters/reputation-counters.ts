@@ -3,8 +3,8 @@ import { GetCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import type { Clock } from "../ports.js";
 
 /**
- * Per-team reputation counters (SPEC §12): sends, bounces and complaints in a
- * daily tumbling window. The window is the UTC day — a bounded, atomic bucket
+ * Per-team reputation counters (SPEC §12): recipients sent to, hard-bounced
+ * and complained, in a daily tumbling window. The window is the UTC day — a bounded, atomic bucket
  * that expires by TTL, so no sliding-window bookkeeping is needed. The
  * ReputationService reads the current day's bucket to compute rolling rates and
  * auto-freeze a team whose bounce/complaint ratio breaches the configured
@@ -46,16 +46,16 @@ export class ReputationCounters {
     );
   }
 
-  recordSends(teamId: string, count: number): Promise<void> {
-    return this.add(teamId, "sends", count);
+  recordSends(teamId: string, recipients: number): Promise<void> {
+    return this.add(teamId, "sends", recipients);
   }
 
-  recordBounce(teamId: string): Promise<void> {
-    return this.add(teamId, "bounces", 1);
+  recordBounce(teamId: string, recipients = 1): Promise<void> {
+    return this.add(teamId, "bounces", recipients);
   }
 
-  recordComplaint(teamId: string): Promise<void> {
-    return this.add(teamId, "complaints", 1);
+  recordComplaint(teamId: string, recipients = 1): Promise<void> {
+    return this.add(teamId, "complaints", recipients);
   }
 
   async current(teamId: string): Promise<ReputationWindow> {

@@ -52,9 +52,10 @@ alerted) when:
 
 - **SES pauses its tenant.** The `TenantStatus` function reacts to the SES
   event.
-- **Its reputation crosses the guardrails.** Rolling bounce rate above 5% or
+- **Its reputation crosses the guardrails.** Daily hard-bounce rate above 5% or
   complaint rate above 0.1% (configurable in `guardrails`), once the window has
-  enough sends to judge.
+  enough recipients to judge. Rates are per recipient, like SES computes them,
+  and soft (`Transient`) bounces never count.
 
 To restore it, fix the underlying issue, then either re-enable the tenant in SES
 (the `REINSTATED`/`ENABLED` event restores the team automatically) or set the

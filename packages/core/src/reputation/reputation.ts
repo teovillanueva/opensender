@@ -11,7 +11,7 @@ export interface GuardrailsConfig {
 
 /**
  * Reputation guardrails (SPEC §12): tracks per-team send/bounce/complaint
- * counts and auto-freezes a team whose rolling bounce or complaint rate
+ * counts per recipient (like SES does) and auto-freezes a team whose rolling bounce or complaint rate
  * breaches the configured thresholds, alerting the operator. Freezing only
  * ever transitions an `active` team, so a manual operator re-enable is not
  * immediately undone by a redelivered event, and an already-frozen team never
@@ -33,18 +33,19 @@ type Outcome = "bounce" | "complaint";
 export class ReputationService {
   constructor(private readonly deps: ReputationServiceDeps) {}
 
-  /** Count accepted sends into the reputation window (called on the send path). */
-  recordSends(teamId: string, count: number): Promise<void> {
-    return this.deps.counters.recordSends(teamId, count);
+  /** Count accepted recipients into the reputation window (called on the send path). */
+  recordSends(teamId: string, recipients: number): Promise<void> {
+    return this.deps.counters.recordSends(teamId, recipients);
   }
 
   /**
-   * Record a delivery outcome and, if it pushes the team over a threshold,
-   * freeze the team and alert. Returns whether the team was frozen by this call.
+   * Record a hard bounce or complaint affecting `recipients` recipients and, if
+   * it pushes the team over a threshold, freeze the team and alert. Returns
+   * whether the team was frozen by this call.
    */
-  async recordOutcome(teamId: string, outcome: Outcome): Promise<boolean> {
-    if (outcome === "bounce") await this.deps.counters.recordBounce(teamId);
-    else await this.deps.counters.recordComplaint(teamId);
+  async recordOutcome(teamId: string, outcome: Outcome, recipients = 1): Promise<boolean> {
+    if (outcome === "bounce") await this.deps.counters.recordBounce(teamId, recipients);
+    else await this.deps.counters.recordComplaint(teamId, recipients);
 
     const window = await this.deps.counters.current(teamId);
     const breach = this.breach(window);
@@ -61,7 +62,7 @@ export class ReputationService {
         `Team ${teamId} ("${team.name}") was automatically frozen.`,
         `Reason: ${breach.kind} rate ${(breach.rate * 100).toFixed(2)}% exceeded the ` +
           `${(breach.threshold * 100).toFixed(2)}% threshold.`,
-        `Window: ${window.sends} sends, ${window.bounces} bounces, ${window.complaints} complaints.`,
+        `Window: ${window.sends} recipients, ${window.bounces} hard bounces, ${window.complaints} complaints.`,
         "Investigate the sending list quality before re-enabling the team.",
       ].join("\n"),
     );

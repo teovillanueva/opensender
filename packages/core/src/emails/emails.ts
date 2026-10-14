@@ -190,7 +190,7 @@ export interface EmailsServiceDeps {
   quotas: QuotaCounters;
   /** Reputation window counters (SPEC §12). Optional so write-only roots and
    * tests that don't exercise guardrails can omit it. */
-  reputation?: { recordSends(teamId: string, count: number): Promise<void> } | undefined;
+  reputation?: { recordSends(teamId: string, recipients: number): Promise<void> } | undefined;
   blobs: BlobStore;
   emailProvider: EmailProvider;
   teams: Pick<TeamsService, "getTeam" | "quotasFor">;
@@ -389,7 +389,12 @@ export class EmailsService {
     // failure, and never a scheduled email at creation time (sendScheduled
     // records when it actually sends). This keeps the auto-freeze denominator
     // honest and lands the count in the same daily bucket as its bounces (§12).
-    if (email.status === "sent") await this.deps.reputation?.recordSends(teamId, 1);
+    if (email.status === "sent") {
+      await this.deps.reputation?.recordSends(
+        teamId,
+        request.to.length + request.cc.length + request.bcc.length,
+      );
+    }
     return { email, usage };
   }
 
@@ -935,7 +940,10 @@ export class EmailsService {
       });
       // Count the reputation/metric send now, at real send time (§12) — the
       // send() path deferred it for scheduled emails.
-      await this.deps.reputation?.recordSends(email.teamId, 1);
+      await this.deps.reputation?.recordSends(
+        email.teamId,
+        request.to.length + request.cc.length + request.bcc.length,
+      );
       return "sent";
     } catch (error) {
       await this.deps.emails

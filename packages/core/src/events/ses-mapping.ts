@@ -27,6 +27,14 @@ export interface MappedSesEvent {
   extras: Record<string, unknown>;
   /** Hard bounce or complaint ⇒ recipients to suppress (SPEC §8.1). */
   suppress?: { reason: "hard_bounce" | "complaint"; recipients: string[] };
+  /**
+   * Outcome that feeds the reputation window (SPEC §12): hard bounces and
+   * complaints only, weighted by affected recipients so it matches how SES
+   * computes its own rates. Soft bounces never count.
+   */
+  reputation?: { outcome: "bounce" | "complaint"; recipients: number };
+  /** Recipients a bounce applied to, hard or soft — logged for diagnosis. */
+  bouncedRecipients?: string[];
 }
 
 function asRecord(value: unknown): Record<string, unknown> {
@@ -60,6 +68,9 @@ export function mapSesEvent(detail: SesEventDetail): MappedSesEvent {
         .map((recipient) => recipient.diagnosticCode)
         .filter((code): code is string => typeof code === "string");
       const isHard = bounce.bounceType === "Permanent";
+      const addresses = recipients
+        .map((recipient) => recipient.emailAddress)
+        .filter((address): address is string => typeof address === "string");
       return {
         resendType: "email.bounced",
         newStatus: "bounced",
@@ -73,15 +84,15 @@ export function mapSesEvent(detail: SesEventDetail): MappedSesEvent {
             diagnosticCode: diagnosticCodes,
           },
         },
-        // Only hard bounces suppress; SES already limits published soft
-        // bounces to retries-exhausted ones (R03 §3.4).
+        bouncedRecipients: addresses,
+        // Only hard bounces suppress or count against reputation; SES already
+        // limits published soft bounces to retries-exhausted ones (R03 §3.4).
         ...(isHard
           ? {
-              suppress: {
-                reason: "hard_bounce" as const,
-                recipients: recipients
-                  .map((recipient) => recipient.emailAddress)
-                  .filter((address): address is string => typeof address === "string"),
+              suppress: { reason: "hard_bounce" as const, recipients: addresses },
+              reputation: {
+                outcome: "bounce" as const,
+                recipients: Math.max(1, addresses.length),
               },
             }
           : {}),
@@ -93,16 +104,15 @@ export function mapSesEvent(detail: SesEventDetail): MappedSesEvent {
       const recipients = (
         Array.isArray(complaint.complainedRecipients) ? complaint.complainedRecipients : []
       ).map((entry) => asRecord(entry));
+      const addresses = recipients
+        .map((recipient) => recipient.emailAddress)
+        .filter((address): address is string => typeof address === "string");
       return {
         resendType: "email.complained",
         newStatus: "complained",
         extras: {},
-        suppress: {
-          reason: "complaint",
-          recipients: recipients
-            .map((recipient) => recipient.emailAddress)
-            .filter((address): address is string => typeof address === "string"),
-        },
+        suppress: { reason: "complaint", recipients: addresses },
+        reputation: { outcome: "complaint", recipients: Math.max(1, addresses.length) },
       };
     }
 

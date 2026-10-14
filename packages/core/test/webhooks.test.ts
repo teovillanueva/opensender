@@ -76,13 +76,21 @@ describe("SES event mapping (ACL, SPEC §8.1)", () => {
       type: "Permanent",
       diagnosticCode: ["smtp; 550 5.1.1 user unknown"],
     });
+    expect(hard.reputation).toEqual({ outcome: "bounce", recipients: 1 });
 
     const soft = mapSesEvent({
       eventType: "Bounce",
       mail,
-      bounce: { bounceType: "Transient", bounceSubType: "MailboxFull", bouncedRecipients: [] },
+      bounce: {
+        bounceType: "Transient",
+        bounceSubType: "MailboxFull",
+        bouncedRecipients: [{ emailAddress: "full@example.com" }],
+      },
     });
     expect(soft.suppress).toBeUndefined();
+    // Soft bounces never count toward the auto-freeze (SES ignores them too).
+    expect(soft.reputation).toBeUndefined();
+    expect(soft.bouncedRecipients).toEqual(["full@example.com"]);
   });
 
   it("maps complaints to suppression and rendering failure via the `failure` key", () => {
@@ -92,6 +100,7 @@ describe("SES event mapping (ACL, SPEC §8.1)", () => {
       complaint: { complainedRecipients: [{ emailAddress: "angry@example.com" }] },
     });
     expect(complaint.suppress).toEqual({ reason: "complaint", recipients: ["angry@example.com"] });
+    expect(complaint.reputation).toEqual({ outcome: "complaint", recipients: 1 });
 
     const rendering = mapSesEvent({
       eventType: "Rendering Failure",

@@ -27,12 +27,6 @@ const BROADCAST_STAT_BY_EVENT: Record<string, BroadcastStatKey> = {
  * redelivery cannot double-fan-out.
  */
 
-/** Delivery outcomes that feed the reputation window (SPEC §12). */
-const REPUTATION_OUTCOME_BY_EVENT: Record<string, "bounce" | "complaint"> = {
-  "email.bounced": "bounce",
-  "email.complained": "complaint",
-};
-
 export interface EventProcessorDeps {
   emails: EmailEntity;
   suppressions: SuppressionEntity;
@@ -41,7 +35,13 @@ export interface EventProcessorDeps {
   broadcasts?: Pick<BroadcastsService, "incrementStat"> | undefined;
   /** Optional: feed bounces/complaints into the reputation auto-freeze (§12). */
   reputation?:
-    | { recordOutcome(teamId: string, outcome: "bounce" | "complaint"): Promise<boolean> }
+    | {
+        recordOutcome(
+          teamId: string,
+          outcome: "bounce" | "complaint",
+          recipients: number,
+        ): Promise<boolean>;
+      }
     | undefined;
   clock: Clock;
 }
@@ -73,6 +73,14 @@ export class EventProcessorService {
       email.status = mapped.newStatus;
     }
 
+    if (mapped.bouncedRecipients) {
+      const bounce = (mapped.extras.bounce ?? {}) as { type?: string; subType?: string };
+      console.warn(
+        `event-processor: ${bounce.type}/${bounce.subType} bounce for email ${email.emailId} ` +
+          `(team ${email.teamId}): ${mapped.bouncedRecipients.join(", ") || "no recipients reported"}`,
+      );
+    }
+
     if (mapped.suppress) {
       await this.addSuppressions(email, mapped.suppress);
     }
@@ -94,10 +102,13 @@ export class EventProcessorService {
     }
 
     // Feed reputation guardrails, also gated on `emitted` so a redelivery never
-    // double-counts a bounce/complaint toward the auto-freeze thresholds (§12).
-    if (emitted && this.deps.reputation) {
-      const outcome = REPUTATION_OUTCOME_BY_EVENT[mapped.resendType];
-      if (outcome) await this.deps.reputation.recordOutcome(email.teamId, outcome);
+    // double-counts a hard bounce/complaint toward the auto-freeze thresholds (§12).
+    if (emitted && this.deps.reputation && mapped.reputation) {
+      await this.deps.reputation.recordOutcome(
+        email.teamId,
+        mapped.reputation.outcome,
+        mapped.reputation.recipients,
+      );
     }
 
     return emitted ? "processed" : "skipped";

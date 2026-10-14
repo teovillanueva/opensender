@@ -46,11 +46,12 @@ export interface InstanceConfig {
 }
 
 interface GuardrailsConfig {
-  /** Freeze a team when bounces/sends in the window exceed this (0–1). */
+  /** Freeze a team when hard-bounced/sent recipients in the window exceed this
+   * (0–1). Soft bounces never count. */
   bounceRateThreshold: number;
-  /** Freeze a team when complaints/sends in the window exceed this (0–1). */
+  /** Freeze a team when complained/sent recipients in the window exceed this (0–1). */
   complaintRateThreshold: number;
-  /** Only evaluate rates once the window has at least this many sends, so a
-   * handful of early bounces can't freeze a low-volume team. */
+  /** Only evaluate rates once the window has at least this many recipients, so
+   * a handful of early bounces can't freeze a low-volume team. */
   minSampleSize: number;
 }

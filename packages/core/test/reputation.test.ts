@@ -26,11 +26,11 @@ function harness(initial: Partial<ReputationWindow>, teamStatus: Team["status"] 
     recordSends: vi.fn(async (_t: string, n: number) => {
       window.sends += n;
     }),
-    recordBounce: vi.fn(async () => {
-      window.bounces += 1;
+    recordBounce: vi.fn(async (_t: string, n = 1) => {
+      window.bounces += n;
     }),
-    recordComplaint: vi.fn(async () => {
-      window.complaints += 1;
+    recordComplaint: vi.fn(async (_t: string, n = 1) => {
+      window.complaints += n;
     }),
     current: vi.fn(async () => ({ ...window })),
   };
@@ -68,6 +68,14 @@ describe("reputation auto-freeze (SPEC §12)", () => {
     expect(await service.recordOutcome("t1", "bounce")).toBe(false);
     expect(teams.setStatus).not.toHaveBeenCalled();
     expect(alerts.publish).not.toHaveBeenCalled();
+  });
+
+  it("weights a hard bounce by its bounced recipients", async () => {
+    // 100 recipients; one email hard-bouncing for 6 of them = 6% > 5%.
+    const { service, counters, teams } = harness({ sends: 100 });
+    expect(await service.recordOutcome("t1", "bounce", 6)).toBe(true);
+    expect(counters.recordBounce).toHaveBeenCalledWith("t1", 6);
+    expect(teams.setStatus).toHaveBeenCalledWith("t1", "frozen");
   });
 
   it("never re-freezes an already-frozen team (idempotent, respects re-enable)", async () => {

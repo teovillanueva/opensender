@@ -142,13 +142,15 @@ export function createReputationCounters(): ReputationCounters {
  * on Powertools.
  */
 function createSendsRecorder(): {
-  recordSends(teamId: string, count: number): Promise<void>;
+  recordSends(teamId: string, recipients: number): Promise<void>;
 } {
   const counters = createReputationCounters();
   return {
-    async recordSends(teamId: string, count: number): Promise<void> {
-      recordMetric("sends", count);
-      await counters.recordSends(teamId, count);
+    // One call per accepted email: the metric counts emails, the reputation
+    // window counts recipients (the unit SES rates are computed in).
+    async recordSends(teamId: string, recipients: number): Promise<void> {
+      recordMetric("sends", 1);
+      await counters.recordSends(teamId, recipients);
     },
   };
 }
